@@ -1,6 +1,7 @@
 if (TARGET tinyusb_device)
     add_executable(st25dv
-            sd25dv.c
+            st25dv_main.c
+            st25dv.c
             )
 
     # Pull in our pico_stdlib which aggregates commonly used features
