@@ -9,7 +9,13 @@
 #include <stdlib.h>
 
 #define DEVICE_SELECT_BYTE(e2) 0x50 | ((e2&0x1)<<2) | 0x3
-
+void st25dv_init(int sda, int scl)
+{
+    gpio_set_function(sda, GPIO_FUNC_I2C);
+    gpio_set_function(scl, GPIO_FUNC_I2C);
+    gpio_pull_up(sda);
+    gpio_pull_up(scl);
+}
 void st25dv_set_read_pointer(uint8_t addr[2])
 {
     uint8_t device_select = DEVICE_SELECT_BYTE(0);

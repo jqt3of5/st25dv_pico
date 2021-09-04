@@ -42,7 +42,7 @@ void st25dv_set_read_pointer(uint8_t addr[2]);
 void st25dv_read_current_user(int length, uint8_t * data);
 void st25dv_read_random_user(uint8_t addr[2], int length, uint8_t * data);
 bool st25dv_read_record(struct NDEF_Record * data);
-
+void st25dv_init(int sda, int scl);
 
 
 #endif //PICO_EXAMPLES_ST25DV_H

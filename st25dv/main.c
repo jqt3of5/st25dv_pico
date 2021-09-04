@@ -10,12 +10,6 @@
 #include "st25dv.h"
 #include <stdlib.h>
 
-static int addr1 = 0x2D;
-static int addr2 = 0x53;
-static int addr3 = 0x57;
-
-#define SDA_PIN 4
-#define SCL_PIN 5
 
 int main() {
     stdio_init_all();
@@ -23,11 +17,7 @@ int main() {
     i2c_init(i2c_default, 400*1000);
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-
-    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
-    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
-    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
-    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
+    st25dv_init(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN);
 
     uint8_t addr[2] = {0x00,0x00};
     uint8_t buffer[16] = {0};
