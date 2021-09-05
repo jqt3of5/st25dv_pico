@@ -33,6 +33,18 @@ void st25dv_read_random_user(uint8_t addr[2], int length, uint8_t * data)
     st25dv_read_current_user(length, data);
 }
 
+bool st25dv_read_all_records(struct NDEF_Record ** data)
+{
+    uint8_t start[2] = {0x00, 0x00};
+    st25dv_set_read_pointer(start);
+    struct NDEF_Record *record;
+    do {
+        record = (struct NDEF_Record *) calloc(sizeof(struct NDEF_Record), 1);
+        st25dv_read_record(record);
+    } while(!record->header.ME);
+}
+
+
 bool st25dv_read_record(struct NDEF_Record * data) {
     uint8_t header = 0;
     st25dv_read_current_user(1, &header);

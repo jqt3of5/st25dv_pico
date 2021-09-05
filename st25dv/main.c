@@ -14,9 +14,10 @@
 int main() {
     stdio_init_all();
 
-    i2c_init(i2c_default, 400*1000);
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+
+    i2c_init(i2c_default, 400*1000);
     st25dv_init(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN);
 
     uint8_t addr[2] = {0x00,0x00};
@@ -41,6 +42,10 @@ int main() {
             record = (struct NDEF_Record *) calloc(sizeof(struct NDEF_Record), 1);
             st25dv_read_record(record);
             //Parse payload into record types.
+
+
+
+
         } while(!record->header.ME);
         sleep_ms(5000);
     }
