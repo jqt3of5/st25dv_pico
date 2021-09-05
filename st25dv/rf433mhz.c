@@ -16,8 +16,8 @@ void rf433_init(uint pin)
 }
 void rf433_transmit(uint pin, char * data, int length, int periodms, enum Preamble preamble)
 {
-    int high_us = periodms * 1000 * 2.0 / 3.0;
     int low_us = periodms * 1000 / 3.0;
+    int high_us = periodms * 1000 - low_us;
 
     switch (preamble)
     {
@@ -61,4 +61,7 @@ void rf433_transmit(uint pin, char * data, int length, int periodms, enum Preamb
     }
 }
 
-int rf433_receive(char * data);
+int rf433_receive(char * data)
+{
+
+}

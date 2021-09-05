@@ -5,7 +5,7 @@
 #ifndef PICO_EXAMPLES_RF433MHZ_H
 #define PICO_EXAMPLES_RF433MHZ_H
 
-void transmit(int pin, char * data, int length, int periodms = 1);
+void transmit(int pin, char * data, int length, int periodms);
 int receive(int pin, char * data);
 
 #endif //PICO_EXAMPLES_RF433MHZ_H
