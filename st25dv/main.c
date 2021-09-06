@@ -31,7 +31,26 @@ int ds18b20[] = {12,13};
 int relays[] = {25};
 
 struct MazerConfiguration _configuration = {0};
+void initialize()
+{
+    read_configuration(&_configuration);
 
+    if (_configuration._outputs.output_count == 0)
+    {
+
+    }
+    if (_configuration._readings.reading_count == 0)
+    {
+
+    }
+
+    //if (any changes)
+    write_configuration(&_configuration);
+
+#if DEBUG
+    print_configuration(&_configuration);
+#endif
+}
 int main() {
     stdio_init_all();
 
@@ -48,12 +67,6 @@ int main() {
         sleep_ms(1000);
     }
 
-    read_configuration(&_configuration);
-    write_configuration(&_configuration);
-
-#if DEBUG
-    print_configuration(&_configuration);
-#endif
 
     blink(3, true);
 
@@ -65,6 +78,7 @@ int main() {
         //Run through the algorithms
         //Set the output PWMs
         //Read the NFC configuration
+
         sleep_ms(5000);
         blink(4, true);
     }
