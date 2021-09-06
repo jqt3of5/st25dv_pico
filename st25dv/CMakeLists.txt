@@ -3,6 +3,7 @@ if (TARGET tinyusb_device)
             main.c
             st25dv.c
             rf433mhz.c
+            Mazer.c
             )
 
     # Pull in our pico_stdlib which aggregates commonly used features

@@ -5,6 +5,10 @@
 #ifndef PICO_EXAMPLES_ST25DV_H
 #define PICO_EXAMPLES_ST25DV_H
 
+#if UNIT_TESTS
+#include "../tests/picoMock.h"
+#endif
+
 #define ST25DV_DEVICE_SELECT_BYTE(e2) 0x50 | ((e2&0x1)<<2) | 0x3
 #define ST25DV_USER_MEMORY_START 0x06
 
@@ -32,46 +36,13 @@ struct NDEF_Record {
     uint8_t type_length;
     uint32_t payload_length;
     uint8_t ID_length;
-    uint8_t * record_type;
+    char* record_type;
     uint8_t ID;
     uint8_t * payload;
 };
 
 struct WellKnownPayload {
 
-};
-
-const char * OutputRTD= "urn:nfc:ext:substantive.tech:output";
-struct OutputPayload {
-   uint8_t output_count;
-
-   //Trying to avoid dynamic memory in the structs, makes parsing easier
-   //16 bit pwm outputs. Period is dictated by the algorithm.
-   uint16_t outputs[8];
-};
-
-const char * ReadingRTD= "urn:nfc:ext:substantive.tech:reading";
-struct ReadingPayload {
-    uint8_t reading_count;
-    //Trying to avoid dynamic memory in the structs, makes parsing easier
-    //16 bit readings, depends on the sensor. But might be an ADC, K-type thermocouple, ds18b20
-    uint16_t readings[8];
-};
-
-const char * PID_RTD= "urn:nfc:ext:substantive.tech:pid";
-const char * ThermostaticRTD= "urn:nfc:ext:substantive.tech:thermostatic";
-struct AlgorithmPayload {
-    unsigned int input_count : 2;
-    unsigned int input_numbers : 14;
-    float set_point;
-    unsigned int output_heat : 4;
-    unsigned int output_cool : 4;
-    float pwm_period;
-
-    //For PID, if all three params are 0, then we're auto tuning
-    float param1; //Kp, dTh;
-    float param2; //Ki, dTl;
-    float param3; //Kd, reserved;
 };
 
 //Initializes the specified pins

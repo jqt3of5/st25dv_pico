@@ -3,18 +3,27 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <memory.h>
+
+#if !UNIT_TESTS
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#else
+#include "../tests/picoMock.h"
+#endif
 #include "st25dv.h"
-#include <stdlib.h>
 
 void st25dv_init(int sda, int scl)
 {
+#if !UNIT_TESTS
     gpio_set_function(sda, GPIO_FUNC_I2C);
     gpio_set_function(scl, GPIO_FUNC_I2C);
     gpio_pull_up(sda);
     gpio_pull_up(scl);
+#endif
 }
+
 void st25dv_set_read_pointer(uint16_t addr)
 {
     uint8_t device_select = ST25DV_DEVICE_SELECT_BYTE(0);
@@ -101,12 +110,8 @@ int st25dv_record_bytes(struct NDEF_Record * record, uint8_t ** data)
         currentByte += 1;
     }
 
-    uint8_t  * recordType = ((uint8_t*)&record->record_type);
-    for (int j = record->type_length-1; j >= 0; --j)
-    {
-        bytes[currentByte] = recordType[j];
-        currentByte += 1;
-    }
+    memcpy(bytes + currentByte, record->record_type, record->type_length);
+    currentByte += record->type_length;
 
     if (record->header.IL)
     {
@@ -136,7 +141,7 @@ void st25dv_write_records(int count, struct NDEF_Record * records[])
         bytes[0] = (address >> 8) & 0xff;
         bytes[1] = address & 0xff;
 
-        i2c_write_blocking(i2c_default, device_select, bytes, byteCount, false);
+        i2c_write_blocking(i2c_default, device_select, bytes, byteCount + 2, false);
         address += byteCount;
     }
 }
@@ -189,8 +194,8 @@ int st25dv_read_record(struct NDEF_Record * data) {
 #endif
     }
     //Record Type
-    data->record_type = (uint8_t *) calloc(1, data->type_length);
-    st25dv_read_current_user(data->type_length, data->record_type);
+    data->record_type = (char*) calloc(1, data->type_length+1);
+    st25dv_read_current_user(data->type_length, (uint8_t*)data->record_type);
 #if DEBUG
     printf("record_type: %d\n", data->record_type);
 #endif
