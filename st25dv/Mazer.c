@@ -15,8 +15,10 @@ const char * PID_RTD= "urn:nfc:ext:substantive.tech:pid";
 const char * ThermostaticRTD= "urn:nfc:ext:substantive.tech:thermostatic";
 const char * UnknownRTD= "urn:nfc:ext:substantive.tech:unknown";
 
-int build_configuration(struct MazerConfiguration * config, struct NDEF_Record * records[])
+void write_configuration(struct MazerConfiguration * config)
 {
+    struct NDEF_Record * records[10] = {0};
+
     records[0] = (struct NDEF_Record *)calloc(sizeof(struct NDEF_Record), 1);
 //    records[0]->header.IL = 0;
 //    records[0]->header.CF = 0;
@@ -92,12 +94,19 @@ int build_configuration(struct MazerConfiguration * config, struct NDEF_Record *
         memcpy(record->payload, algPayload, sizeof(struct AlgorithmPayload));
     }
 
-    //the last record shouldhave message end flag set
+    //the last record should have message end flag set
     records[config->_algorithmCount + 2 - 1]->header.ME = 1;
+
+    st25dv_write_records(config->_algorithmCount + 2, records);
 }
 
-void read_configuration(int count, struct NDEF_Record* records[], struct MazerConfiguration * config)
+void read_configuration(struct MazerConfiguration * config)
 {
+    //Read configuration/state
+    struct NDEF_Record * records[10] = {0};
+    int count = st25dv_read_all_records(records);
+    printf("records: %d", count);
+
     int algorithmCount = 0;
     for (int i = 0; i < count; ++i)
     {

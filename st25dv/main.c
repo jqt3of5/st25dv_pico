@@ -48,15 +48,12 @@ int main() {
         sleep_ms(1000);
     }
 
-    //Read configuration/state
-    struct NDEF_Record * records[10] = {0};
-    int count = st25dv_read_all_records(records);
-    printf("records: %d", count);
+    read_configuration(&_configuration);
+    write_configuration(&_configuration);
 
-    read_configuration(count, records);
-    print_configuration();
-//    int c = build_configuration(records);
-//    st25dv_write_records(c, records);
+#if DEBUG
+    print_configuration(&_configuration);
+#endif
 
     blink(3, true);
 

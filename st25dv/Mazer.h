@@ -53,8 +53,8 @@ struct MazerConfiguration {
     struct AlgorithmPayload  _algorithms[5];
 };
 
-int build_configuration(struct MazerConfiguration * config, struct NDEF_Record * records[]);
-void read_configuration(int count, struct NDEF_Record* records[], struct MazerConfiguration * config);
+void read_configuration(struct MazerConfiguration * config);
+void write_configuration(struct MazerConfiguration * config);
 void print_configuration(struct MazerConfiguration * config);
 
 #endif //PICO_EXAMPLES_MAZER_H

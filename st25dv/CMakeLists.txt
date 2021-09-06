@@ -1,3 +1,4 @@
+add_compile_definitions(DEBUG)
 if (TARGET tinyusb_device)
     add_executable(st25dv
             main.c

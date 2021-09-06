@@ -11,7 +11,6 @@
 extern uint8_t _memory[1024];
 int main()
 {
-    struct NDEF_Record * records[10] = {0};
     struct MazerConfiguration config = {0};
     config._readings.reading_count = 2;
     config._readings.readings[0] = 400;
@@ -57,17 +56,11 @@ int main()
     config._algorithms[2].output_heat = 2;
     config._algorithms[2].pwm_period = 0.5f;
 
-    int num_records = build_configuration(&config, records);
-
-    st25dv_write_records(num_records, records);
+    write_configuration(&config);
 
     struct MazerConfiguration config2 = {0};
-    struct NDEF_Record * records2[10] = {0};
 
-
-    int count = st25dv_read_all_records(records2);
-
-    read_configuration(count, records, &config2);
+    read_configuration(&config2);
 
     int result = memcmp(&config, &config2, sizeof(struct MazerConfiguration));
 
