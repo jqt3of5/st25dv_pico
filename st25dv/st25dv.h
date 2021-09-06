@@ -5,6 +5,9 @@
 #ifndef PICO_EXAMPLES_ST25DV_H
 #define PICO_EXAMPLES_ST25DV_H
 
+#define ST25DV_DEVICE_SELECT_BYTE(e2) 0x50 | ((e2&0x1)<<2) | 0x3
+#define ST25DV_USER_MEMORY_START 0x06
+
 enum TNF {
     Empty = 0x00,
     WellKnown = 0x01,
@@ -38,29 +41,25 @@ struct WellKnownPayload {
 
 };
 
-enum PayloadType {
-    Pid,
-    Thermostatic,
-    Reading,
-    Output,
-};
-
-struct MazerPayloadHeader {
-    enum PayloadType algoType : 8;
-};
-
+const char * OutputRTD= "urn:nfc:ext:substantive.tech:output";
 struct OutputPayload {
    uint8_t output_count;
 
+   //Trying to avoid dynamic memory in the structs, makes parsing easier
    //16 bit pwm outputs. Period is dictated by the algorithm.
-   uint16_t * outputs;
-};
-struct ReadingPayload {
-    uint8_t reading_count;
-    //16 bit readings, depends on the sensor. But might be an ADC, K-type thermocouple, ds18b20
-    uint16_t * readings;
+   uint16_t outputs[8];
 };
 
+const char * ReadingRTD= "urn:nfc:ext:substantive.tech:reading";
+struct ReadingPayload {
+    uint8_t reading_count;
+    //Trying to avoid dynamic memory in the structs, makes parsing easier
+    //16 bit readings, depends on the sensor. But might be an ADC, K-type thermocouple, ds18b20
+    uint16_t readings[8];
+};
+
+const char * PID_RTD= "urn:nfc:ext:substantive.tech:pid";
+const char * ThermostaticRTD= "urn:nfc:ext:substantive.tech:thermostatic";
 struct AlgorithmPayload {
     unsigned int input_count : 2;
     unsigned int input_numbers : 14;
@@ -92,6 +91,8 @@ void st25dv_read_current_user(int length, uint8_t * data);
 void st25dv_read_random_user(uint16_t addr, int length, uint8_t * data);
 //Reads a single record from the current location in user memory
 int st25dv_read_record(struct NDEF_Record * data);
+
+
 
 
 #endif //PICO_EXAMPLES_ST25DV_H

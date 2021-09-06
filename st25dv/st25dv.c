@@ -8,7 +8,6 @@
 #include "st25dv.h"
 #include <stdlib.h>
 
-#define DEVICE_SELECT_BYTE(e2) 0x50 | ((e2&0x1)<<2) | 0x3
 void st25dv_init(int sda, int scl)
 {
     gpio_set_function(sda, GPIO_FUNC_I2C);
@@ -18,12 +17,16 @@ void st25dv_init(int sda, int scl)
 }
 void st25dv_set_read_pointer(uint16_t addr)
 {
-    uint8_t device_select = DEVICE_SELECT_BYTE(0);
-    i2c_write_blocking(i2c_default, device_select, (uint8_t*)&addr, 2, true);
+    uint8_t device_select = ST25DV_DEVICE_SELECT_BYTE(0);
+
+    //i2c transfers MSB first
+    uint8_t  swap[2] = {(addr >> 8) & 0xff, addr & 0xff};
+
+    i2c_write_blocking(i2c_default, device_select, swap, 2, true);
 }
 void st25dv_read_current_user(int length, uint8_t * data)
 {
-    uint8_t device_select = DEVICE_SELECT_BYTE(0);
+    uint8_t device_select = ST25DV_DEVICE_SELECT_BYTE(0);
     i2c_read_blocking(i2c_default, device_select, data, length, false);
 }
 
@@ -71,6 +74,7 @@ int st25dv_record_bytes(struct NDEF_Record * record, uint8_t ** data)
     int currentByte = 0;
 
     //Skip two bytes for the address
+    //TODO: Honestly a little weird
     currentByte = 2;
     bytes[currentByte] = *((uint8_t*)&record->header);
     currentByte += 1;
@@ -122,9 +126,9 @@ int st25dv_record_bytes(struct NDEF_Record * record, uint8_t ** data)
 
 void st25dv_write_records(int count, struct NDEF_Record * records[])
 {
-    uint8_t device_select = DEVICE_SELECT_BYTE(0);
+    uint8_t device_select = ST25DV_DEVICE_SELECT_BYTE(0);
     //skip the CC file
-    uint16_t address = 0x06;
+    uint16_t address = ST25DV_USER_MEMORY_START;
     for (int i = 0; i < count; ++i)
     {
         uint8_t * bytes;
@@ -139,8 +143,7 @@ void st25dv_write_records(int count, struct NDEF_Record * records[])
 
 int st25dv_read_all_records(struct NDEF_Record* records[])
 {
-    //skip the CC file
-    st25dv_set_read_pointer(0x0600);
+    st25dv_set_read_pointer(ST25DV_USER_MEMORY_START);
 
     int i = 0;
     do {
