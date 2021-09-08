@@ -46,7 +46,7 @@ struct WellKnownPayload {
 };
 
 //Initializes the specified pins
-void st25dv_init(int sda, int scl);
+void st25dv_init();
 
 //Sets the read/write pointer to an address in user space
 void st25dv_set_read_pointer(uint16_t addr);

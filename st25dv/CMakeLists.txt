@@ -5,10 +5,12 @@ if (TARGET tinyusb_device)
             st25dv.c
             rf433mhz.c
             Mazer.c
+            max31855.c
+            Config.c
             )
 
     # Pull in our pico_stdlib which aggregates commonly used features
-    target_link_libraries(st25dv pico_stdlib hardware_i2c)
+    target_link_libraries(st25dv pico_stdlib hardware_i2c hardware_spi)
 
     # enable usb output, disable uart output
     pico_enable_stdio_usb(st25dv 1)

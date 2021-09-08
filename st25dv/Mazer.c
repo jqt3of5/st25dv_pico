@@ -5,9 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <hardware/i2c.h>
 
 #include "st25dv.h"
 #include "Mazer.h"
+#include "Config.h"
 
 const char * OutputRTD= "urn:nfc:ext:substantive.tech:output";
 const char * ReadingRTD= "urn:nfc:ext:substantive.tech:reading";
@@ -104,6 +106,7 @@ void read_configuration(struct MazerConfiguration * config)
 {
     //Read configuration/state
     struct NDEF_Record * records[10] = {0};
+
     int count = st25dv_read_all_records(records);
     printf("records: %d", count);
 
@@ -137,6 +140,16 @@ void read_configuration(struct MazerConfiguration * config)
 
 void print_configuration(struct MazerConfiguration * config)
 {
+    printf("Readings: %d", config->_readings.reading_count);
+    for (int i = 0; i < config->_readings.reading_count; ++i)
+    {
+       printf("reading %d: %d", i, config->_readings.readings[i]);
+    }
+    printf("outputs: %d", config->_outputs.output_count);
+    for (int i = 0; i < config->_readings.reading_count; ++i)
+    {
+        printf("output %d: %d", i, config->_outputs.outputs[i]);
+    }
     printf("Algorithms: %d\n", config->_algorithmCount);
     printf("Configuration: \n");
 

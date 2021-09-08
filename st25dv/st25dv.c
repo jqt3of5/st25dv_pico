@@ -13,14 +13,15 @@
 #include "../tests/picoMock.h"
 #endif
 #include "st25dv.h"
+#include "Config.h"
 
-void st25dv_init(int sda, int scl)
+void st25dv_init()
 {
 #if !UNIT_TESTS
-    gpio_set_function(sda, GPIO_FUNC_I2C);
-    gpio_set_function(scl, GPIO_FUNC_I2C);
-    gpio_pull_up(sda);
-    gpio_pull_up(scl);
+    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_SDA);
+    gpio_pull_up(I2C_SCL);
 #endif
 }
 
@@ -31,12 +32,12 @@ void st25dv_set_read_pointer(uint16_t addr)
     //i2c transfers MSB first
     uint8_t  swap[2] = {(addr >> 8) & 0xff, addr & 0xff};
 
-    i2c_write_blocking(i2c_default, device_select, swap, 2, true);
+    i2c_write_blocking(I2C_PORT, device_select, swap, 2, true);
 }
 void st25dv_read_current_user(int length, uint8_t * data)
 {
     uint8_t device_select = ST25DV_DEVICE_SELECT_BYTE(0);
-    i2c_read_blocking(i2c_default, device_select, data, length, false);
+    i2c_read_blocking(I2C_PORT, device_select, data, length, false);
 }
 
 void st25dv_read_random_user(uint16_t addr, int length, uint8_t * data)
@@ -141,8 +142,10 @@ void st25dv_write_records(int count, struct NDEF_Record * records[])
         bytes[0] = (address >> 8) & 0xff;
         bytes[1] = address & 0xff;
 
-        i2c_write_blocking(i2c_default, device_select, bytes, byteCount + 2, false);
+        i2c_write_blocking(I2C_PORT, device_select, bytes, byteCount + 2, false);
         address += byteCount;
+        //TODO: Again we need to wait... It would be better if we wrote it all at once. Thought I suspect we can only write 256 bytes at a time.
+        sleep_ms(500);
     }
 }
 
@@ -155,12 +158,13 @@ int st25dv_read_all_records(struct NDEF_Record* records[])
         records[i] = (struct NDEF_Record *) calloc(sizeof(struct NDEF_Record), 1);
         st25dv_read_record(records[i]);
         i += 1;
-    } while(!records[i-1]->header.ME);
+    } while(!records[i-1]->header.ME && i < 10);
 
     return i;
 }
 
 int st25dv_read_record(struct NDEF_Record * data) {
+
     uint8_t header = 0;
     st25dv_read_current_user(1, &header);
     data->header = *((struct NDEF_Header *) &header);
@@ -197,7 +201,7 @@ int st25dv_read_record(struct NDEF_Record * data) {
     data->record_type = (char*) calloc(1, data->type_length+1);
     st25dv_read_current_user(data->type_length, (uint8_t*)data->record_type);
 #if DEBUG
-    printf("record_type: %d\n", data->record_type);
+    printf("record_type: %s\n", data->record_type);
 #endif
 
     //Record ID
@@ -212,7 +216,12 @@ int st25dv_read_record(struct NDEF_Record * data) {
     data->payload = (uint8_t *) calloc(1, data->payload_length);
     st25dv_read_current_user(data->payload_length, data->payload);
 #if DEBUG
-    printf("Payload: %s\n", data->payload);
+    printf("Payload: ");
+    for (int i = 0; i < data->payload_length; ++i)
+    {
+       printf("0x%x ", data->payload[i]);
+    }
+    printf("\n");
 #endif
 
     //TODO: follow chunked records. Combine Payloads together
